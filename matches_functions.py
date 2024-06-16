@@ -49,23 +49,24 @@ def select_match(matches_played):
 
 
 def print_scores():
-    for name in scores:
-        if scores.get(name) == 1:
-            print(NAMES.get(name), 'has', scores.get(name), 'win')
+    for initial in scores:
+        if scores.get(initial) == 1:
+            print(NAMES.get(initial), 'has', scores.get(initial), 'win')
         else:
-            print(NAMES.get(name), 'has', scores.get(name), 'wins')
+            print(NAMES.get(initial), 'has', scores.get(initial), 'wins')
     print()
     sorted_dict = {k: v for k, v in sorted(pairs_scores.items(), key=lambda item: item[1], reverse=True)}
     sorted_dict = dict(list(sorted_dict.items())[0: 3])
     for item in sorted_dict.items():
-        if scores.get(name) == 1:
+        if scores.get(initial) == 1:
             print(NAMES.get(item[0][0]) + '/' + NAMES.get(item[0][1]), 'has', item[1], 'win')
         else:
             print(NAMES.get(item[0][0]) + '/' + NAMES.get(item[0][1]), 'has', item[1], 'wins')
     print("------------")
     print()
 
-def update_scores(code, score, is_home, expected_gd, writing_to_csv=True):  # and the NN stuff later
+
+def update_scores(code, score, is_home, expected_gd, writing_to_csv=True):
     goal_difference = int(score[0]) - int(score[2])
     error = round(goal_difference - expected_gd, 1)
     if is_home:
@@ -89,10 +90,42 @@ def update_scores(code, score, is_home, expected_gd, writing_to_csv=True):  # an
     print_scores()
 
 
-def make_match(count):
+def update_scores_and_nn(code, score, is_home, expected_gd):
+    update_scores(code, score, is_home, expected_gd)
+    goal_difference = int(score[0]) - int(score[2])
+    neural_net.improve(NAMES.keys(), code, is_home, goal_difference)
+
+
+def is_championship_over(match_number, count):
+    return match_number % (len(MATCH_CODES)) == 0 and count != 0
+
+
+def write_final_results_csv():
+    file_handling.update_csv(["--------------", "Wins"])
+    sorted_scores = {k: v for k, v in sorted(scores.items(), reverse=True, key=lambda item: item[1])}
+    for item in sorted_scores.items():
+        file_handling.update_csv([NAMES.get(item[0]), item[1]])
+    file_handling.update_csv(["--------------", "Pair Wins"])
+    sorted_scores = {k: v for k, v in sorted(pairs_scores.items(), reverse=True, key=lambda item: item[1])}
+    for item in sorted_scores.items():
+        key = NAMES.get(item[0][0]) + '/' + NAMES.get(item[0][1])
+        file_handling.update_csv([key, item[1]])
+
+
+def begin_new_championship():
     global scores
     global pairs_scores
     global played_matches
+
+    file_handling.new_championship()
+    scores = scores.fromkeys(scores, 0)
+    pairs_scores = pairs_scores.fromkeys(pairs_scores, 0)
+    played_matches = played_matches.fromkeys(played_matches, 0)
+
+
+def make_match(count):
+    global played_matches
+
     match_number = count % len(MATCH_CODES) + 1
     print("Match", match_number, "/", len(MATCH_CODES))
     code, is_home = select_match(played_matches)
@@ -100,33 +133,19 @@ def make_match(count):
     expected_gd = neural_net.predict(NAMES.keys(), code, is_home)
     print("xGD:", expected_gd)
     score = input("What was the score? ")
+    update_scores_and_nn(code, score, is_home, expected_gd)
     print()
-    update_scores(code, score, is_home, expected_gd)
-    goal_difference = int(score[0]) - int(score[2])
-    neural_net.improve(NAMES.keys(), code, is_home, goal_difference)
     print()
-    if match_number % (len(MATCH_CODES)) == 0 and count != 0:
-        file_handling.update_csv(["--------------"])
-        file_handling.update_csv(["Vitórias"])
-        sorted_scores = {k: v for k, v in sorted(scores.items(), reverse=True, key=lambda item: item[1])}
-        for item in sorted_scores.items():
-            file_handling.update_csv([NAMES.get(item[0]), item[1]])
-        file_handling.update_csv(["--------------"])
-        file_handling.update_csv(["Vitórias Pares"])
-        sorted_scores = {k: v for k, v in sorted(pairs_scores.items(), reverse=True, key=lambda item: item[1])}
-        for item in sorted_scores.items():
-            key = NAMES.get(item[0][0]) + '/' + NAMES.get(item[0][1])
-            file_handling.update_csv([key, item[1]])
+
+    if is_championship_over(match_number, count):
+        write_final_results_csv()
         confirmation = input('All games have been completed - do you want to play another championship? (y/n) ')
         if confirmation == 'n':
             print_scores()
             neural_net.save()
             exit()
         else:
-            file_handling.new_championship()
-            scores = scores.fromkeys(scores, 0)
-            pairs_scores = pairs_scores.fromkeys(pairs_scores, 0)
-            played_matches = played_matches.fromkeys(played_matches, 0)
+            begin_new_championship()
     else:
         keep_playing = input('Do you want to keep playing? (y/n) ')
         if keep_playing == 'n':
@@ -146,5 +165,5 @@ pairs_scores = dict(zip(PAIRS, [0] * len(PAIRS)))
 
 played_matches = make_matches_dict()
 
-''' match code (ABCD), home (Adam/Ben), away (Adam/Ben), (goal difference (float), formatted (int-int),)
-actual score (int-int) actual goal difference (float), (errors??)'''
+''' match code (ABCD), home (Adam/Ben), away (Adam/Ben), goal difference (float),
+ actual goal difference (float), error (float)'''
