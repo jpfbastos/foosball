@@ -20,9 +20,9 @@ def start():
 
         X, y = df.iloc[:, :-1], (
                     df.iloc[:, -1:].values / 6).ravel()  # max number of goals as output is between -1 and 1
-        X_train, X_test, y_train, y_test = train_test_split((X, y), left_side=0.8)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.8, test_size=0.2)
 
-        clf = MLPRegressor(hidden_layer_sizes=(10,), activation='relu', max_iter=300, warm_start=True, verbose=False)
+        clf = MLPRegressor(hidden_layer_sizes=(50,), activation='relu', max_iter=300, warm_start=True)
         clf.fit(X_train, y_train)
 
 

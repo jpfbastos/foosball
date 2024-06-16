@@ -6,6 +6,8 @@ import file_handling
 if __name__ == '__main__':
     neural_net.start()
     count = 0
+    if not os.path.isdir('championships'):
+        os.makedirs('championships', exist_ok=True)
     if not os.listdir('championships'):
         file_handling.new_championship()
     else:

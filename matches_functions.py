@@ -133,9 +133,8 @@ def make_match(count):
     expected_gd = neural_net.predict(NAMES.keys(), code, is_home)
     print("xGD:", expected_gd)
     score = input("What was the score? ")
+    print()
     update_scores_and_nn(code, score, is_home, expected_gd)
-    print()
-    print()
 
     if is_championship_over(match_number, count):
         write_final_results_csv()
