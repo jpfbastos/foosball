@@ -165,5 +165,5 @@ pairs_scores = dict(zip(PAIRS, [0] * len(PAIRS)))
 
 played_matches = make_matches_dict()
 
-''' match code (ABCD), home (Adam/Ben), away (Adam/Ben), goal difference (float),
+'''match code (ABCD), home (Adam/Ben), away (Adam/Ben), goal difference (float),
  actual goal difference (float), error (float)'''
