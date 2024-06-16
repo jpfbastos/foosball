@@ -43,7 +43,7 @@ def predict(initials, game_code, is_home):
     input_data = pd.DataFrame([player_dict])
 
     prediction = clf.predict(input_data)
-    expected_gd = round(prediction[0] * 6, 1)  # output is between -1 and 1: we need it to be between -6 and 6
+    expected_gd = round(prediction[0] * 6, 1)  # output is between -1 and 1, and we need it to be between -6 and 6
     return expected_gd
 
 
