@@ -7,7 +7,7 @@ HEADER = ["game_code", "is_home", "home", "away", "score", "goal_difference", "e
 def update_csv(updates):
     docs = sorted(os.listdir('championships'))
     filename = 'championships/' + docs[-1]
-    data = {HEADER[i]: updates[i] for i in range(len(HEADER))}
+    data = {HEADER[i]: updates[i] for i in range(len(updates))}
     df = pd.DataFrame(data, index=[0])
     df.to_csv(filename, mode='a', index=False, header=False)
 

@@ -101,11 +101,13 @@ def is_championship_over(match_number, count):
 
 
 def write_final_results_csv():
-    file_handling.update_csv(["--------------", "Wins"])
+    file_handling.update_csv(["--------------"])
+    file_handling.update_csv(["Wins"])
     sorted_scores = {k: v for k, v in sorted(scores.items(), reverse=True, key=lambda item: item[1])}
     for item in sorted_scores.items():
         file_handling.update_csv([NAMES.get(item[0]), item[1]])
-    file_handling.update_csv(["--------------", "Pair Wins"])
+    file_handling.update_csv(["--------------"])
+    file_handling.update_csv(["Pair Wins"])
     sorted_scores = {k: v for k, v in sorted(pairs_scores.items(), reverse=True, key=lambda item: item[1])}
     for item in sorted_scores.items():
         key = NAMES.get(item[0][0]) + '/' + NAMES.get(item[0][1])
@@ -154,7 +156,7 @@ def make_match(count):
 
 
 INITIALS = ['J', 'G', 'K', 'V', 'D', 'M']
-NAMES = {'J': 'JP', 'G': 'Gucas', 'K': 'Kikas', 'V': 'Vu', 'D': 'Daddy', 'M': 'Mummy'}
+NAMES = {'J': 'Adam', 'G': 'Ben', 'K': 'Chris', 'V': 'Don', 'D': 'Edith', 'M': 'Florence'}
 
 PAIRS = make_pairs()
 MATCH_CODES = make_match_codes()
