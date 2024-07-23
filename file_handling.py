@@ -24,8 +24,8 @@ def new_championship():
 def read_values(csv_file, max_matches):
     info = []
     data = pd.read_csv(csv_file)
-    count = len(data) - 1  # title does not count
-    if count > max_matches:
+    count = len(data)
+    if count >= max_matches:
         confirmation = input('All games have been completed - do you want to play another championship? (y/n) ')
         if confirmation == 'n':
             exit()

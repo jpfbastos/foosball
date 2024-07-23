@@ -4,11 +4,22 @@ from random import randint
 from random import getrandbits
 
 
+def make_names():
+    names = {}
+    for initial in neural_net.initials:
+        name = input("What name would you like displayed for the initial " + initial + "? (Leave blank if " + initial +
+                     "is not playing) ")
+        name = ''.join(name.split())
+        if name != '':
+            names.update({initial: name})
+    return names
+
+
 def make_pairs():
     pairs = []
-    for i in range(len(INITIALS) - 1):
-        for j in range(i + 1, len(INITIALS)):
-            pairs.append(INITIALS[i] + INITIALS[j])
+    for i in range(len(NAMES) - 1):
+        for j in range(i + 1, len(NAMES)):
+            pairs.append(list(NAMES.keys())[i] + list(NAMES.keys())[j])
     return pairs
 
 
@@ -29,6 +40,11 @@ def make_matches_dict():
     for match in MATCH_CODES:
         has_been_played.update({match: False})
     return has_been_played
+
+'''
+def start():
+    names = make_names()
+'''
 
 
 def select_match(matches_played):
@@ -93,11 +109,11 @@ def update_scores(code, score, is_home, expected_gd, writing_to_csv=True):
 def update_scores_and_nn(code, score, is_home, expected_gd):
     update_scores(code, score, is_home, expected_gd)
     goal_difference = int(score[0]) - int(score[2])
-    neural_net.improve(NAMES.keys(), code, is_home, goal_difference)
+    neural_net.improve(code, is_home, goal_difference)
 
 
-def is_championship_over(match_number, count):
-    return match_number % (len(MATCH_CODES)) == 0 and count != 0
+def is_championship_over(count):
+    return (count + 1) % len(MATCH_CODES) == 0
 
 
 def write_final_results_csv():
@@ -132,13 +148,13 @@ def make_match(count):
     print("Match", match_number, "/", len(MATCH_CODES))
     code, is_home = select_match(played_matches)
     played_matches.update({code: True})
-    expected_gd = neural_net.predict(NAMES.keys(), code, is_home)
+    expected_gd = neural_net.predict(code, is_home)
     print("xGD:", expected_gd)
     score = input("What was the score? ")
     print()
     update_scores_and_nn(code, score, is_home, expected_gd)
 
-    if is_championship_over(match_number, count):
+    if is_championship_over(count):
         write_final_results_csv()
         confirmation = input('All games have been completed - do you want to play another championship? (y/n) ')
         if confirmation == 'n':
@@ -155,13 +171,12 @@ def make_match(count):
             exit()
 
 
-INITIALS = ['J', 'G', 'K', 'V', 'D', 'M']
-NAMES = {'J': 'Adam', 'G': 'Ben', 'K': 'Chris', 'V': 'Don', 'D': 'Edith', 'M': 'Florence'}
+NAMES = make_names()
 
 PAIRS = make_pairs()
 MATCH_CODES = make_match_codes()
 
-scores = dict(zip(INITIALS, [0] * len(INITIALS)))
+scores = dict(zip(list(NAMES.keys()), [0] * len(NAMES)))
 pairs_scores = dict(zip(PAIRS, [0] * len(PAIRS)))
 
 played_matches = make_matches_dict()
