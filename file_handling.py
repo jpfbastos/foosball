@@ -12,13 +12,20 @@ def update_csv(updates):
     df.to_csv(filename, mode='a', index=False, header=False)
 
 
-def new_championship():
+def new_championship(data_file):
     df = pd.DataFrame(columns=HEADER)
     docs = sorted(os.listdir('championships'))
     if not os.listdir('championships'):
-        df.to_csv('championships/championship00.csv', index=False)
+        df.to_csv('championships/championship00_' + data_file, index=False)
     else:
-        df.to_csv('championships/championship' + str(int(docs[-1][12:-4]) + 1).zfill(2) + '.csv', index=False)
+        index = docs.index('_')
+        df.to_csv('championships/championship' + str(int(docs[-1][12:index]) + 1).zfill(2) + '_' + data_file,
+                  index=False)
+
+
+def new_data(data_file, initials):
+    df = pd.DataFrame(columns=initials.append('GD'))
+    df.to_csv('data/' + data_file, index=False)
 
 
 def read_values(csv_file, max_matches):
@@ -36,3 +43,9 @@ def read_values(csv_file, max_matches):
         for row in data.values:
             info.append([row[0], row[1], row[4], row[7]])  # code, isHome, result, expected_gd
     return count, info
+
+
+def get_initials(data_file):
+    df = pd.read_csv('data/' + data_file)
+    initials = list(df)[:-1]
+    return initials

@@ -7,13 +7,10 @@ from sklearn.model_selection import train_test_split
 
 def start(data_file_name):
     global data_file_path, model_file_path, df, initials, clf
-    data_file_path = data_file_name
+    data_file_path = 'data/' + data_file_name
     model_file_path = 'models/' + data_file_path[5:-4] + '.pkl'
-
-    ''' TODO See where this fits
     df = pd.read_csv(data_file_path)
     initials = list(df)[:-1]
-    '''
 
     if os.path.isfile(model_file_path):
         with open(model_file_path, 'rb') as f:

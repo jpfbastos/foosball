@@ -4,9 +4,9 @@ from random import randint
 from random import getrandbits
 
 
-def make_names():
+def make_names(initials):
     names = {}
-    for initial in neural_net.initials:
+    for initial in initials:
         name = input("What name would you like displayed for the initial " + initial + "? (Leave blank if " + initial +
                      "is not playing) ")
         name = ''.join(name.split())
@@ -17,18 +17,18 @@ def make_names():
 
 def make_pairs():
     pairs = []
-    for i in range(len(NAMES) - 1):
-        for j in range(i + 1, len(NAMES)):
-            pairs.append(list(NAMES.keys())[i] + list(NAMES.keys())[j])
+    for i in range(len(names) - 1):
+        for j in range(i + 1, len(names)):
+            pairs.append(list(names.keys())[i] + list(names.keys())[j])
     return pairs
 
 
 def make_match_codes():
     matches = []
-    for i in range(len(PAIRS) - 1):
-        first_pair = PAIRS[i]
-        for j in range(i + 1, len(PAIRS)):
-            second_pair = PAIRS[j]
+    for i in range(len(pairs) - 1):
+        first_pair = pairs[i]
+        for j in range(i + 1, len(pairs)):
+            second_pair = pairs[j]
             if second_pair.find(first_pair[0]) == -1 \
                     and second_pair.find(first_pair[1]) == -1:
                 matches.append(first_pair + second_pair)
@@ -37,14 +37,24 @@ def make_match_codes():
 
 def make_matches_dict():
     has_been_played = {}
-    for match in MATCH_CODES:
+    for match in match_codes:
         has_been_played.update({match: False})
     return has_been_played
 
-'''
-def start():
-    names = make_names()
-'''
+
+def start(initials):
+    global names, pairs, match_codes, scores, pairs_scores, played_matches
+    print(initials)
+    names = make_names(initials)
+    print(names)
+    pairs = make_pairs()
+    print(pairs)
+    match_codes = make_match_codes()
+    print(match_codes)
+    scores = dict(zip(list(names.keys()), [0] * len(names)))
+    pairs_scores = dict(zip(pairs, [0] * len(pairs)))
+
+    played_matches = make_matches_dict()
 
 
 def select_match(matches_played):
@@ -52,32 +62,32 @@ def select_match(matches_played):
     match = matches_filtered[randint(0, len(matches_filtered) - 1)]
     is_home = bool(getrandbits(1))
     if is_home:
-        print(NAMES.get(match[0]) + '/', end='')
-        print(NAMES.get(match[1]) + ' - ', end='')
-        print(NAMES.get(match[2]) + '/', end='')
-        print(NAMES.get(match[3]))
+        print(names.get(match[0]) + '/', end='')
+        print(names.get(match[1]) + ' - ', end='')
+        print(names.get(match[2]) + '/', end='')
+        print(names.get(match[3]))
     else:
-        print(NAMES.get(match[2]) + '/', end='')
-        print(NAMES.get(match[3]) + ' - ', end='')
-        print(NAMES.get(match[0]) + '/', end='')
-        print(NAMES.get(match[1]))
+        print(names.get(match[2]) + '/', end='')
+        print(names.get(match[3]) + ' - ', end='')
+        print(names.get(match[0]) + '/', end='')
+        print(names.get(match[1]))
     return match, is_home
 
 
 def print_scores():
     for initial in scores:
         if scores.get(initial) == 1:
-            print(NAMES.get(initial), 'has', scores.get(initial), 'win')
+            print(names.get(initial), 'has', scores.get(initial), 'win')
         else:
-            print(NAMES.get(initial), 'has', scores.get(initial), 'wins')
+            print(names.get(initial), 'has', scores.get(initial), 'wins')
     print()
     sorted_dict = {k: v for k, v in sorted(pairs_scores.items(), key=lambda item: item[1], reverse=True)}
     sorted_dict = dict(list(sorted_dict.items())[0: 3])
     for item in sorted_dict.items():
         if scores.get(initial) == 1:
-            print(NAMES.get(item[0][0]) + '/' + NAMES.get(item[0][1]), 'has', item[1], 'win')
+            print(names.get(item[0][0]) + '/' + names.get(item[0][1]), 'has', item[1], 'win')
         else:
-            print(NAMES.get(item[0][0]) + '/' + NAMES.get(item[0][1]), 'has', item[1], 'wins')
+            print(names.get(item[0][0]) + '/' + names.get(item[0][1]), 'has', item[1], 'wins')
     print("------------")
     print()
 
@@ -99,8 +109,8 @@ def update_scores(code, score, is_home, expected_gd, writing_to_csv=True):
         else:
             scores.update({code[0]: scores.get(code[0]) + 1, code[1]: scores.get(code[1]) + 1})
             pairs_scores.update({code[:2]: pairs_scores.get(code[:2]) + 1})
-    updates = [code, is_home, NAMES.get(code[2]) + '/' + NAMES.get(code[3]),
-               NAMES.get(code[0]) + '/' + NAMES.get(code[1]), score, goal_difference, expected_gd, error]
+    updates = [code, is_home, names.get(code[2]) + '/' + names.get(code[3]),
+               names.get(code[0]) + '/' + names.get(code[1]), score, goal_difference, expected_gd, error]
     if writing_to_csv:
         file_handling.update_csv(updates)
     print_scores()
@@ -113,7 +123,7 @@ def update_scores_and_nn(code, score, is_home, expected_gd):
 
 
 def is_championship_over(count):
-    return (count + 1) % len(MATCH_CODES) == 0
+    return (count + 1) % len(match_codes) == 0
 
 
 def write_final_results_csv():
@@ -121,12 +131,12 @@ def write_final_results_csv():
     file_handling.update_csv(["Wins"])
     sorted_scores = {k: v for k, v in sorted(scores.items(), reverse=True, key=lambda item: item[1])}
     for item in sorted_scores.items():
-        file_handling.update_csv([NAMES.get(item[0]), item[1]])
+        file_handling.update_csv([names.get(item[0]), item[1]])
     file_handling.update_csv(["--------------"])
     file_handling.update_csv(["Pair Wins"])
     sorted_scores = {k: v for k, v in sorted(pairs_scores.items(), reverse=True, key=lambda item: item[1])}
     for item in sorted_scores.items():
-        key = NAMES.get(item[0][0]) + '/' + NAMES.get(item[0][1])
+        key = names.get(item[0][0]) + '/' + names.get(item[0][1])
         file_handling.update_csv([key, item[1]])
 
 
@@ -142,10 +152,10 @@ def begin_new_championship():
 
 
 def make_match(count):
-    global played_matches
-
-    match_number = count % len(MATCH_CODES) + 1
-    print("Match", match_number, "/", len(MATCH_CODES))
+    global played_matches, match_codes
+    print(match_codes)
+    match_number = count % len(match_codes) + 1
+    print("Match", match_number, "/", len(match_codes))
     code, is_home = select_match(played_matches)
     played_matches.update({code: True})
     expected_gd = neural_net.predict(code, is_home)
@@ -171,15 +181,15 @@ def make_match(count):
             exit()
 
 
-NAMES = make_names()
+names = {}
 
-PAIRS = make_pairs()
-MATCH_CODES = make_match_codes()
+pairs = []
+match_codes = []
 
-scores = dict(zip(list(NAMES.keys()), [0] * len(NAMES)))
-pairs_scores = dict(zip(PAIRS, [0] * len(PAIRS)))
+scores = {}
+pairs_scores = {}
 
-played_matches = make_matches_dict()
+played_matches = {}
 
 '''match code (ABCD), home (Adam/Ben), away (Adam/Ben), goal difference (float),
  actual goal difference (float), error (float)'''
