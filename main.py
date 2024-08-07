@@ -14,7 +14,9 @@ def setup():
             'ERROR. What is the unique filename of the data to train the neural network? (Leave blank if there '
             'is no data) ')
     if data_file_name == '':
-        number_of_players = int(input('How many people are playing? (at least 4 players are required) '))
+        number_of_players = 0
+        while number_of_players < 4:
+            number_of_players = int(input('How many people are playing? (at least 4 players are required) '))
         for i in range(1, number_of_players+1):
             initial = input('Enter a 1 letter unique initial for Player ' + str(i) + ': ')
             while len(initial) != 1 or initial in initials_list:
@@ -48,8 +50,12 @@ if __name__ == '__main__':
             data_file, initials = setup()
             matches_functions.start(initials)
         else:
-            data_file = 'championships/' + sorted(os.listdir('championships'))[-1]
-            count, info = file_handling.read_values(data_file, len(matches_functions.make_match_codes()))
+            doc = sorted(os.listdir('championships'))[-1]
+            index = doc.index('_')
+            data_file = doc[index+1:]
+            initials = file_handling.get_initials(data_file)
+            matches_functions.start(initials)
+            count, info = file_handling.read_values(doc, len(matches_functions.match_codes))
             for row in info:
                 matches_functions.update_scores(row[0], row[2], row[1] == 'True', row[3], False)
         start(data_file)

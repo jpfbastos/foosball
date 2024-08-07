@@ -8,7 +8,7 @@ def make_names(initials):
     names = {}
     for initial in initials:
         name = input("What name would you like displayed for the initial " + initial + "? (Leave blank if " + initial +
-                     "is not playing) ")
+                     " is not playing) ")
         name = ''.join(name.split())
         if name != '':
             names.update({initial: name})
@@ -24,6 +24,8 @@ def make_pairs():
 
 
 def make_match_codes():
+    global pairs
+
     matches = []
     for i in range(len(pairs) - 1):
         first_pair = pairs[i]
@@ -44,13 +46,9 @@ def make_matches_dict():
 
 def start(initials):
     global names, pairs, match_codes, scores, pairs_scores, played_matches
-    print(initials)
     names = make_names(initials)
-    print(names)
     pairs = make_pairs()
-    print(pairs)
     match_codes = make_match_codes()
-    print(match_codes)
     scores = dict(zip(list(names.keys()), [0] * len(names)))
     pairs_scores = dict(zip(pairs, [0] * len(pairs)))
 
@@ -94,7 +92,10 @@ def print_scores():
 
 def update_scores(code, score, is_home, expected_gd, writing_to_csv=True):
     goal_difference = int(score[0]) - int(score[2])
-    error = round(goal_difference - expected_gd, 1)
+    if expected_gd:
+        error = round(goal_difference - expected_gd, 1)
+    else:
+        error = "n/a"
     if is_home:
         if score[0] < score[2]:
             scores.update({code[2]: scores.get(code[2]) + 1, code[3]: scores.get(code[3]) + 1})
@@ -153,13 +154,15 @@ def begin_new_championship():
 
 def make_match(count):
     global played_matches, match_codes
-    print(match_codes)
     match_number = count % len(match_codes) + 1
     print("Match", match_number, "/", len(match_codes))
     code, is_home = select_match(played_matches)
     played_matches.update({code: True})
     expected_gd = neural_net.predict(code, is_home)
-    print("xGD:", expected_gd)
+    if expected_gd:
+        print("xGD:", expected_gd)
+    else:
+        print("xGD: N/A (Model is not trained yet)")
     score = input("What was the score? ")
     print()
     update_scores_and_nn(code, score, is_home, expected_gd)

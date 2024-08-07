@@ -14,23 +14,23 @@ def update_csv(updates):
 
 def new_championship(data_file):
     df = pd.DataFrame(columns=HEADER)
-    docs = sorted(os.listdir('championships'))
     if not os.listdir('championships'):
         df.to_csv('championships/championship00_' + data_file, index=False)
     else:
+        docs = sorted(os.listdir('championships'))[-1]
         index = docs.index('_')
-        df.to_csv('championships/championship' + str(int(docs[-1][12:index]) + 1).zfill(2) + '_' + data_file,
+        df.to_csv('championships/championship' + str(int(docs[12:index]) + 1).zfill(2) + '_' + data_file,
                   index=False)
 
 
 def new_data(data_file, initials):
-    df = pd.DataFrame(columns=initials.append('GD'))
+    df = pd.DataFrame(columns=initials + ['GD'])
     df.to_csv('data/' + data_file, index=False)
 
 
-def read_values(csv_file, max_matches):
+def read_values(championship_file, max_matches):
     info = []
-    data = pd.read_csv(csv_file)
+    data = pd.read_csv('championships/' + championship_file)
     count = len(data)
     if count >= max_matches:
         confirmation = input('All games have been completed - do you want to play another championship? (y/n) ')
