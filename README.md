@@ -1,8 +1,8 @@
-# Matrecos Championship Scorer #
+# Foosball Championship Manager #
 
 ## General Information
 
-This is a program which creates and manages matrecos (foosball in Portuguese) championships. It displays match information along with championship results, and has the ability to store progress by saving the championship information in .csv files. Moreover, it also uses Scikit-learn's Multi-layer Perceptron (MLP) Regressor which, based on previous information about the teams and their results, tries to predict the result of the upcoming match.
+This is a program which creates and manages foosball championships. It displays match information along with championship results, and has the ability to store progress by saving the championship information in .csv files. Moreover, it also uses Scikit-learn's Multi-layer Perceptron (MLP) Regressor which, based on previous information about the teams and their results, tries to predict the result of the upcoming match.
 
 The purpose of this solution is so there is a way to store the results of matches in an organised way which can then be structured into championships to create a more competitive edge amongst the players. 
 
